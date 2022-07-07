@@ -1,9 +1,13 @@
 package repository
 
-import "lopei-grpc-server/model"
+import (
+	"errors"
+	"lopei-grpc-server/model"
+)
 
 type LopeiRepository interface {
 	RetrieveById(id int32) (model.Customer, error)
+	TransferBalance(senderId int32, receiverId int32, amount float32) error
 }
 
 type lopeiRepository struct {
@@ -17,6 +21,18 @@ func (l *lopeiRepository) RetrieveById(id int32) (model.Customer, error) {
 		}
 	}
 	return model.Customer{}, nil
+}
+
+func (l *lopeiRepository) TransferBalance(senderId int32, receiverId int32, amount float32) error {
+	lengthData := int32(len(l.db)) + 1
+	if senderId > lengthData || receiverId > lengthData {
+		return errors.New("FAILED")
+	}
+
+	l.db[senderId-1].Balance = l.db[senderId-1].Balance - amount
+	l.db[receiverId-1].Balance = l.db[receiverId-1].Balance + amount
+
+	return nil
 }
 
 func NewLopeiRepository() LopeiRepository {

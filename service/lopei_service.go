@@ -46,9 +46,19 @@ func (l *LopeiService) DoPayment(ctx context.Context, in *PaymentMessage) (*Resu
 			},
 		}, nil
 	}
+	err = l.repo.TransferBalance(lopeiId, in.LopeiReceiverId, amount)
+	if err != nil {
+		return &ResultMessage{
+			Result: err.Error(),
+			Error: &Error{
+				Code:    "X08",
+				Message: "Id not found",
+			},
+		}, nil
+	}
 
 	resultMessage := &ResultMessage{
-		Result: "SUCCESS",
+		Result: "TRASNFER SUCCESS",
 		Error:  nil,
 	}
 	return resultMessage, nil
